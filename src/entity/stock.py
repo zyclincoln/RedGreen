@@ -5,21 +5,37 @@ from src.storage import Storage
 
 class Stock(object):
 
-    def __init__(self, market: Market, code: str):
-        self.market = market
-        self.code = code
+    def __init__(self, market: Market, code: str, name: str, pid: str):
+        self._market = market
+        self._code = code
+        self._name = name
+        self._pid = pid
+
+    @property
+    def market(self):
+        return self._market
+
+    @property
+    def code(self):
+        return self._code
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def pid(self):
+        return self._pid
+
+    def roe(self):
+        return []
 
 
 @Singleton
 class StockGenerator(object):
 
     def __init__(self):
-        self.stocks = None
+        pass
 
     def create(self, market: Market, code: str):
-        if self.stocks is None:
-            self.stocks = Storage().get_all_stocks()
-        for stock in self.stocks:
-            if stock["market"] == Market and stock["code"] == code:
-                return Stock(market, code)
-        return None
+        return Storage().query_stock(market, code)
