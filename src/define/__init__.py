@@ -25,7 +25,7 @@ class Market(Enum):
         if self.value == Market.China_SSE.value:
             return "China_SSE"
         elif self.value == Market.China_SZSE.value:
-            return "Chain_SZSE"
+            return "China_SZSE"
         elif self.value == Market.US.value:
             return "US"
         elif self.value == Market.HK.value:

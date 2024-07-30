@@ -1,11 +1,23 @@
 # coding: utf-8
+from define.log_config import logger
 import akshare as ak
 import pandas as pd
 from define import Market
 
-"""
-实现从api获取数据的相关接口，获取到的数据以pandas.DataFrame的方式存放
-"""
+
+class AbstractDataSource(object):
+    query_func = {}
+
+    @classmethod
+    def register_query(cls, query_type, func):
+        cls.query_func[query_type] = func
+
+    def query(self, query_type, *args, **kwargs):
+        if query_type in self.__class__.query_func:
+            return self.__class__.query_func[query_type](self, *args, **kwargs)
+        else:
+            logger.warning(f"Source: {self.__class__.__name__} do not support query {query_type}")
+            return None
 
 
 def convert_to_number(value):
