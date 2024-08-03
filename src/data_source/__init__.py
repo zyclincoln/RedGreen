@@ -1,8 +1,64 @@
 # coding: utf-8
+from enum import Enum
 from define.log_config import logger
 import akshare as ak
 import pandas as pd
 from define import Market
+
+
+def parse_unikey(uni_key: str):
+    pos = uni_key.rfind('.')
+    if pos < 0:
+        logger.fatal(f"Invalid unikey {uni_key}")
+    return uni_key[:pos], uni_key[pos+1:]
+
+
+def to_unikey(code: str, market: str):
+    return f"{code}.{market}"
+
+
+class KLevel(Enum):
+    Daily = 10,
+    Weekly = 20,
+    Monthly = 30,
+    Quarterly = 40,
+    SemiAnnually = 50
+    Annually = 60
+
+    def to_str(self):
+        if self == KLevel.Daily:
+            return "daily"
+        elif self == KLevel.Weekly:
+            return "weekly"
+        elif self == KLevel.Monthly:
+            return "monthly"
+        elif self == KLevel.Quarterly:
+            return "quarterly"
+        elif self == KLevel.SemiAnnually:
+            return "semi_annually"
+        elif self == KLevel.Annually:
+            return "annually"
+        else:
+            logger.fatal(f"Unknown KLevel enum {self}")
+            assert False
+
+    @classmethod
+    def from_str(cls, string: str):
+        if string == "daily":
+            return KLevel.Daily
+        elif string == "weekly":
+            return KLevel.Weekly
+        elif string == "monthly":
+            return KLevel.Monthly
+        elif string == "quarterly":
+            return KLevel.Quarterly
+        elif string == "semi_annually":
+            return KLevel.SemiAnnually
+        elif string == "annually":
+            return KLevel.Annually
+        else:
+            logger.fatal(f"Unknown KLevel str {string}")
+            assert False
 
 
 class AbstractDataSource(object):
