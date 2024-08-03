@@ -32,17 +32,15 @@ class StockMeta(Base):
     name: Mapped[str]
     full_name: Mapped[Optional[str]]
 
-
     @classmethod
     def get_data(cls, session: Session, uni_key: List[str]):
         query = session.query(cls)
-        if uni_key:
+        if len(uni_key) != 0:
             query = query.filter(cls.uni_key.in_(uni_key))
         return pandas.read_sql(query.statement, query.session.bind)
 
-
     @classmethod
-    def update_data(cls, db_engine: Engine, data_source, force: False):
+    def update_data(cls, db_engine: Engine, data_source, force=False):
         df_data: DataFrame = data_source.query(cls.__tablename__)
         with Session(db_engine) as session:
             ids = df_data['uni_key']
@@ -52,31 +50,30 @@ class StockMeta(Base):
             else:
                 exist_data = cls.get_data(session, uni_key=ids)
                 df_data = df_data[~df_data["uni_key"].isin(exist_data["uni_key"])]
-            df_data.to_sql(schema=cls.__tablename__, con=session.connection(), index=False, if_exists='append')
+            df_data.to_sql(name=cls.__tablename__, con=session.connection(), index=False, if_exists='append')
             session.commit()
 
 
-class StockFinance(Base):
-    __tablename__ = "stock_finance"
-
-
-class StockKData(TimeSeriesData):
-    __tablename__ = "stock_k_data"
-    level: Mapped[str] = mapped_column(String(6))
-
-    low: Mapped[float]
-    high: Mapped[float]
-    open: Mapped[float]
-    close: Mapped[float]
-
-    volume: Mapped[float]
-    turnover: Mapped[float]
-    change_pct: Mapped[float]
-    turnover_rate: Mapped[float]
-
-    @classmethod
-    def init_data(cls):
-
+# class StockFinance(Base):
+#     __tablename__ = "stock_finance"
+#
+#
+# class StockKData(TimeSeriesData):
+#     __tablename__ = "stock_k_data"
+#     level: Mapped[str] = mapped_column(String(6))
+#
+#     low: Mapped[float]
+#     high: Mapped[float]
+#     open: Mapped[float]
+#     close: Mapped[float]
+#
+#     volume: Mapped[float]
+#     turnover: Mapped[float]
+#     change_pct: Mapped[float]
+#     turnover_rate: Mapped[float]
+#
+#     @classmethod
+#     def init_data(cls):
 
 
 class Stock(object):
@@ -137,6 +134,11 @@ class StockGenerator(object):
 
 
 if __name__ == "__main__":
-    db_path = os.path.join(os.getcwd(), "..", "context", "data", "test.db")
+    db_path = os.path.join(os.getcwd(), "..", "context", "data", "stock_meta.db")
     engine = create_engine(f"sqlite:///{db_path}", echo=True)
     Base.metadata.create_all(engine)
+
+    from data_source.east_money_source import EastMoneySource
+    source = EastMoneySource()
+
+    StockMeta.update_data(engine, source)
