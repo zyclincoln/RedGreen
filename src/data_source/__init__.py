@@ -4,6 +4,7 @@ from define.log_config import logger
 import akshare as ak
 import pandas as pd
 from define import Market
+from datetime import datetime, timezone
 
 
 def parse_unikey(uni_key: str):
@@ -122,6 +123,19 @@ def date_to_year(value):
     if type(value) is str:
         return value.split('-')[0]
     return ""
+
+
+def to_timestamp(value, str_format: str | None = None):
+    # year
+    if isinstance(value, int) and 1600 < value < 2500:
+        return datetime(value, 12, 31, tzinfo=timezone.utc)
+    if isinstance(value, str) and str_format is not None:
+        dt = datetime.strptime(value, str_format)
+        dt.astimezone(timezone.utc)
+        return dt
+
+    logger.fatal(f"Unsupported Timestamp format {value}, type {type(value)}")
+    assert False
 
 
 class DataSource(object):

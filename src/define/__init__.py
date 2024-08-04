@@ -23,9 +23,9 @@ class Market(Enum):
 
     def to_string(self):
         if self.value == Market.China_SSE.value:
-            return "China_SSE"
+            return "SH"
         elif self.value == Market.China_SZSE.value:
-            return "China_SZSE"
+            return "SZ"
         elif self.value == Market.US.value:
             return "US"
         elif self.value == Market.HK.value:
